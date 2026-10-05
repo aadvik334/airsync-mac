@@ -14,24 +14,32 @@ jobs:
 
       - name: Resolve Swift Packages
         run: |
-          xcodebuild -resolvePackageDependencies -project AirSync.xcodeproj -scheme "AirSync Self Compiled"
+          xcodebuild -resolvePackageDependencies \
+            -project AirSync.xcodeproj \
+            -scheme "AirSync Self Compiled"
 
-      - name: Archive AirSync App
+      - name: Compile AirSync App
         run: |
-          # Create an xcarchive with local ad-hoc signing
-          xcodebuild archive \
+          xcodebuild clean build \
             -project AirSync.xcodeproj \
             -scheme "AirSync Self Compiled" \
+            -destination "platform=macOS,arch=arm64" \
             -configuration Release \
-            -destination 'generic/platform=macOS' \
-            -archivePath ./build/AirSync.xcarchive \
+            -derivedDataPath ./build \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=YES
 
           mkdir -p ./output
-          # Extract the compiled .app bundle from the archive
-          cp -R ./build/AirSync.xcarchive/Products/Applications/AirSync.app ./output/
+          # Locate the built AirSync.app bundle
+          find ./build/Build/Products/Release -maxdepth 2 -name "AirSync.app" -exec cp -R {} ./output/ \;
+
+      - name: Verify Application Bundle
+        run: |
+          if [ ! -d "./output/AirSync.app" ]; then
+            echo "Error: AirSync.app was not found in ./output"
+            exit 1
+          fi
 
       - name: Compress App
         run: |
