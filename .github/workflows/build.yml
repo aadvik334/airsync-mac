@@ -12,19 +12,18 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Select Xcode 16
-        run: |
-          sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      - name: Verify Xcode Version
+        run: xcodebuild -version
 
-      - name: List Available Schemes
-        run: |
-          xcodebuild -list -project AirSync.xcodeproj
+      - name: List Schemes
+        run: xcodebuild -list -project AirSync.xcodeproj
 
-      - name: Compile AirSync
+      - name: Compile AirSync Self Compiled
         run: |
           xcodebuild clean build \
             -project AirSync.xcodeproj \
             -scheme "AirSync Self Compiled" \
+            -destination 'platform=macOS' \
             -configuration Release \
             -derivedDataPath ./build \
             CODE_SIGN_IDENTITY="-" \
@@ -35,6 +34,15 @@ jobs:
           cp -R ./build/Build/Products/Release/AirSync.app ./output/
 
       - name: Compress App
+        run: |
+          cd ./output
+          zip -r AirSync-Self-Compiled.zip AirSync.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AirSync-Self-Compiled
+          path: ./output/AirSync-Self-Compiled.zip      - name: Compress App
         run: |
           cd ./output
           zip -r AirSync-Self-Compiled.zip AirSync.app
