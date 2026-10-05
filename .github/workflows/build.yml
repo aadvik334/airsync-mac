@@ -9,23 +9,39 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Select Xcode Version
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: List Available Schemes
+        run: |
+          xcodebuild -list -project AirSync.xcodeproj
 
       - name: Compile AirSync
         run: |
-          xcodebuild build \
+          # Build with ad-hoc signing (-) so entitlements and widgets build cleanly
+          xcodebuild clean build \
             -project AirSync.xcodeproj \
             -scheme "AirSync Self Compiled" \
             -configuration Release \
             -derivedDataPath ./build \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=YES
 
-          # Package the compiled app
           mkdir -p ./output
           cp -R ./build/Build/Products/Release/AirSync.app ./output/
+
+      - name: Compress App
+        run: |
+          cd ./output
+          zip -r AirSync-Self-Compiled.zip AirSync.app
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AirSync-Self-Compiled
-          path: ./output/AirSync.app
+          path: ./output/AirSync-Self-Compiled.zip
