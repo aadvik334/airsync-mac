@@ -16,25 +16,33 @@ jobs:
         run: |
           xcodebuild -resolvePackageDependencies -project AirSync.xcodeproj -scheme "AirSync Self Compiled"
 
-      - name: Build AirSync App
+      - name: Archive AirSync App
         run: |
-          xcodebuild clean build \
+          # Create an xcarchive with local ad-hoc signing
+          xcodebuild archive \
             -project AirSync.xcodeproj \
             -scheme "AirSync Self Compiled" \
             -configuration Release \
             -destination 'generic/platform=macOS' \
-            -derivedDataPath ./build \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="" \
+            -archivePath ./build/AirSync.xcarchive \
+            CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES
 
           mkdir -p ./output
-          # Locate and copy the built application bundle
-          APP_PATH=$(find ./build/Build/Products/Release -name "AirSync.app" -type d | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            echo "AirSync.app not found in standard Release directory. Checking all build products..."
-            APP_PATH=$(find ./build -name "AirSync.app" -type d | head -n 1)
+          # Extract the compiled .app bundle from the archive
+          cp -R ./build/AirSync.xcarchive/Products/Applications/AirSync.app ./output/
+
+      - name: Compress App
+        run: |
+          cd ./output
+          zip -r AirSync-Self-Compiled.zip AirSync.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AirSync-Self-Compiled
+          path: ./output/AirSync-Self-Compiled.zip            APP_PATH=$(find ./build -name "AirSync.app" -type d | head -n 1)
           fi
           cp -R "$APP_PATH" ./output/
 
