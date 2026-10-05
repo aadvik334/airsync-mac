@@ -42,22 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AirSync-Self-Compiled
-          path: ./output/AirSync-Self-Compiled.zip            APP_PATH=$(find ./build -name "AirSync.app" -type d | head -n 1)
-          fi
-          cp -R "$APP_PATH" ./output/
-
-      - name: Compress App
-        run: |
-          cd ./output
-          zip -r AirSync-Self-Compiled.zip AirSync.app
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AirSync-Self-Compiled
-          path: ./output/AirSync-Self-Compiled.zip
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AirSync-Self-Compiled
           path: ./output/AirSync-Self-Compiled.zip
