@@ -15,9 +15,6 @@ jobs:
       - name: Verify Xcode Version
         run: xcodebuild -version
 
-      - name: List Schemes
-        run: xcodebuild -list -project AirSync.xcodeproj
-
       - name: Compile AirSync Self Compiled
         run: |
           xcodebuild clean build \
@@ -35,6 +32,14 @@ jobs:
 
       - name: Compress App
         run: |
+          cd ./output
+          zip -r AirSync-Self-Compiled.zip AirSync.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AirSync-Self-Compiled
+          path: ./output/AirSync-Self-Compiled.zip        run: |
           cd ./output
           zip -r AirSync-Self-Compiled.zip AirSync.app
 
