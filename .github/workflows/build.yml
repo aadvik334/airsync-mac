@@ -42,12 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AirSync-Self-Compiled
-          path: ./output/AirSync-Self-Compiled.zip        run: |
-          cd ./output
-          zip -r AirSync-Self-Compiled.zip AirSync.app
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AirSync-Self-Compiled
           path: ./output/AirSync-Self-Compiled.zip
